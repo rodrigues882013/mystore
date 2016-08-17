@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-6">
+        <form action="{% url 'account:login' %}" class="form form-horizontal" method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="form-group">
+                {{ form.user_name.errors }}
+                <label for="id_user_name" class="col-sm-3 control-label">Username:</label>
+                <div class="col-sm-9">
+                    <input type="text"
+                           placeholder="Username"
+                           class="form-control"
+                           id="id_user_name"
+                           name="user_name" required>
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.password.errors }}
+                <label for="id_password" class="col-sm-3 control-label">Password: </label>
+                <div class="col-sm-9">
+                    <input type="password" placeholder="Password" class="form-control" id="id_password" name="password" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-3 col-sm-10">
+                    <input type="submit" class="btn btn-primary">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
