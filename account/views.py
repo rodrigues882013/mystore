@@ -1,15 +1,17 @@
+import json
+
 from django.shortcuts import render
 from django.http import HttpResponse
 from forms import AccountRegisterForm, AccountLoginForm, AccountUpdateForm
 from services import AccountService, AuthJWT, require_loggin
-from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
 
 @require_loggin
 def home(request):
-    return render(request, 'account/home.html')
+    token = request.GET['token']
+    return render(request, 'account/home.html', dict(token=token))
 
 
 def login(request):
@@ -25,6 +27,10 @@ def login(request):
             if token:
                 url = "%s?token=%s" % (reverse('account:home'), token)
                 return HttpResponseRedirect(url)
+            else:
+                response = HttpResponse()
+                response.status_code = 404
+                return response
 
         else:
             pass
@@ -35,6 +41,7 @@ def login(request):
         return render(request, 'account/login.html', {'form': form})
 
 
+@require_loggin
 def logout(request):
     return HttpResponse("Account Logout")
 
@@ -65,3 +72,32 @@ def register(request):
         form = AccountRegisterForm()
 
     return render(request, 'account/register.html', {'form': form})
+
+
+@require_loggin
+def update(request):
+    token = request.GET['token']
+
+    if request.method == 'POST':
+        form = AccountUpdateForm(request.POST)
+
+        if form.is_valid():
+            address = form.cleaned_data['address']
+            city = form.cleaned_data['city']
+            country = form.cleaned_data['country']
+            zipcode = form.cleaned_data['zipcode']
+            phone = form.cleaned_data['phone']
+            user_id = AuthJWT.decode_token(token)
+            account = AccountService.get_account(user_id)
+            AccountService.update_account(account=account,
+                                          address=address,
+                                          city=city,
+                                          country=country,
+                                          zipcode=zipcode,
+                                          phone=phone)
+
+            return render(request, 'account/update.html', {'regards': 'Thank for your register'})
+    else:
+        form = AccountUpdateForm()
+
+    return render(request, 'account/update.html', {'form': form})

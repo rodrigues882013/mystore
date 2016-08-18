@@ -1,10 +1,10 @@
 import jwt
-
+import json
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.http import HttpResponse
 from account.models import Account
 from django.shortcuts import render
-
 
 
 class AccountService(object):
@@ -16,24 +16,47 @@ class AccountService(object):
         user.last_name = kwargs['last_name']
         user.save()
 
-        t = Account.objects.create(user=user)
-
-        print t
+        Account.objects.create(user=user)
         return True
 
-    def update_account(self, account, address=None, address2=None, zipcode=None, phone=None, city=None, country=None):
-        pass
+    @staticmethod
+    def update_account(account, address=None, zipcode=None, phone=None, city=None, country=None):
+
+        if address is not None:
+            account.address = address
+
+        if zipcode is not None:
+            account.zipcode = zipcode
+
+        if phone is not None:
+            account.phone = phone
+
+        if city is not None:
+            account.city = city
+
+        if country is not None:
+            account.country = country
+
+        account.save()
+
+    @staticmethod
+    def get_account(user_id):
+        return Account.objects.get(user_id=user_id)
 
 
 def require_loggin(function):
+
     def wrapped(request):
+
         if request.method == 'GET':
-            token = request.GET['token']
+            token = request.GET.get('token')
 
-            if token is not None:
-                return render(request, 'account/home.html', {'token': token})
+            if token is None:
+                response = HttpResponse(json.dumps({"error": "Not alowed"}))
+                response.status_code = 405
+                return response
 
-            return function(request)
+        return function(request)
 
     return wrapped
 
@@ -42,7 +65,16 @@ class AuthJWT(object):
 
     @staticmethod
     def _create_token(user_id):
-        return "%s %s" % ("Bearer", jwt.encode(dict(user=user_id), 'secret', algorithm='HS256'))
+        return jwt.encode(dict(user=user_id), 'secret', algorithm='HS256')
+
+    @staticmethod
+    def decode_token(token):
+        user = None
+        if token is not None:
+            claims = jwt.decode(token, 'secret', algorithms=['HS256'])
+            user = claims.get('user')
+
+        return user
 
     @classmethod
     def authenticate(cls, username, password):
@@ -51,7 +83,7 @@ class AuthJWT(object):
         if user is not None:
             token = cls._create_token(user.id)
         else:
-            return False
+            token = False
 
         return token
 

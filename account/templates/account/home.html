@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
+
+{% block sidebar %}
+{% include  'account/sidebar.html' %}
+{% endblock %}
+
+
 {% block content %}
-
 {{ token }}
-
 {% endblock %}
