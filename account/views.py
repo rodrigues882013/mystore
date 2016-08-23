@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -6,6 +7,10 @@ from forms import AccountRegisterForm, AccountLoginForm, AccountUpdateForm
 from services import AccountService, AuthJWT, require_loggin
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 
 @require_loggin
@@ -76,12 +81,14 @@ def register(request):
 
 @require_loggin
 def update(request):
-    token = request.GET['token']
+    logger.info("Update view")
+    token = None
 
     if request.method == 'POST':
         form = AccountUpdateForm(request.POST)
 
         if form.is_valid():
+            token = request.META['QUERY_STRING'].split('=')[1]
             address = form.cleaned_data['address']
             city = form.cleaned_data['city']
             country = form.cleaned_data['country']
@@ -95,9 +102,19 @@ def update(request):
                                           country=country,
                                           zipcode=zipcode,
                                           phone=phone)
-
-            return render(request, 'account/update.html', {'regards': 'Thank for your register'})
     else:
-        form = AccountUpdateForm()
+        token = request.GET['token']
+        user_id = AuthJWT.decode_token(token)
+        account = AccountService.get_account(user_id)
 
-    return render(request, 'account/update.html', {'form': form})
+        form_data = dict(address=account.address,
+                         city=account.city,
+                         country=account.country,
+                         zipcode=account.zipcode,
+                         phone=account.phone)
+        form = AccountUpdateForm(initial=form_data)
+        print form
+
+        logger.debug("Accound: %s", str(account))
+
+    return render(request, 'account/update.html', {'form': form, 'token': token})

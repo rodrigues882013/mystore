@@ -11,6 +11,7 @@
 
         <form class="form-signin" action="{% url 'account:login' %}" method="post">
             {% csrf_token %}
+        <input type="hidden" value="{{ token }}">
         <h2 class="form-signin-heading">Please sign in</h2>
         <label for="id_user_name" class="sr-only">Email address</label>
         <input type="text"
