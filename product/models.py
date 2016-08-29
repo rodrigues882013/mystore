@@ -13,7 +13,7 @@ class Product(models.Model):
     sale_price = models.DecimalField(decimal_places=2, max_digits=100, null=True, blank=True)
 
     def __unicode__(self):
-        return self.title
+        return self.name
 
     def get_price(self):
         return self.price

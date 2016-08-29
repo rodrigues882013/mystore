@@ -39,11 +39,13 @@
     <div class="container">
         {% include 'navbar.html' %}
         <div class="row">
-        {% block sidebar %}
-        {% endblock %}
 
-        {% block content %}
-        {% endblock %}
+            {% block sidebar %}
+            {% endblock %}
+
+            {% block content %}
+            {% endblock %}
+        
         </div>
     </div>
     <!-- /.container -->

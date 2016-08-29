@@ -52,9 +52,7 @@ def require_loggin(function):
             token = request.GET.get('token')
 
             if token is None:
-                response = HttpResponse(json.dumps({"error": "Not alowed"}))
-                response.status_code = 405
-                return response
+                return render(request, 'account/login.html')
 
         return function(request)
 

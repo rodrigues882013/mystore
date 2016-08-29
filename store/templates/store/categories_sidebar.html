@@ -1,0 +1,11 @@
+
+{% load static %}
+
+<div class="col-md-3">
+    <div class="list-group">
+        {% for category in items_list.categories %}
+        <a href="#" class="list-group-item">{{ category.name }}</a>
+        {% endfor %}
+    </div>
+</div>
+
