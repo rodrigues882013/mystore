@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.core.urlresolvers import reverse
 from product.models import Category, Product, Item
 
 
@@ -19,6 +20,17 @@ class ProductTestCase(TestCase):
     def test_if_product_was_created_with_successfull(self):
         product = Product.objects.get(name='Test product')
         self.assertTrue(isinstance(product, Product))
+
+    def test_product_detail(self):
+        product = Product.objects.get(name='Test product')
+        url = reverse('product:detail', args=[1])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)   
+
+        print response.context
+
+
 
 
 class ItemTestCase(TestCase):

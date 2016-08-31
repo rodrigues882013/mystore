@@ -37,3 +37,13 @@ class StoreTestCase(TestCase):
         self.assertTrue(item_list['products'])
         self.assertEqual(len(item_list['products']), 4)
 
+    def test_if_index_page_has_category_list(self):
+        url = reverse('store:index')
+        response = self.client.get(url)
+        item_list = response.context['items_list']
+
+        self.assertTrue(item_list['categories'])
+        self.assertEqual(len(item_list['categories']), 4)
+
+
+
